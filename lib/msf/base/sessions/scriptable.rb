@@ -67,6 +67,7 @@ module Scriptable
       'enum_shares' => 'post/windows/gather/enum_shares',
       'file_collector' => 'post/windows/gather/enum_files',
       'get_application_list' => 'post/windows/gather/enum_applications',
+      'get_env' => 'post/multi/gather/env',
       'get_filezilla_creds' => 'post/windows/gather/credentials/filezilla_server',
       'get_local_subnets' => 'post/multi/manage/autoroute',
       'get_valid_community' => 'post/windows/gather/enum_snmp',
@@ -79,6 +80,7 @@ module Scriptable
       'killav' => 'post/windows/manage/killav',
       'metsvc' => 'post/windows/manage/persistence_exe',
       'migrate' => 'post/windows/manage/migrate',
+      'pml_driver_config' => 'exploit/windows/local/service_permissions',
       'packetrecorder' => 'post/windows/manage/rpcapd_start',
       'persistence' => 'post/windows/manage/persistence_exe',
       'prefetchtool' => 'post/windows/gather/enum_prefetch',
@@ -165,7 +167,7 @@ module Scriptable
       full_path = self.class.find_script_path(script_name)
 
       if full_path.nil?
-        print_error("The specified script could not be found: #{script_name}")
+        print_error("The specified #{self.type} session script could not be found: #{script_name}")
         return
       end
 

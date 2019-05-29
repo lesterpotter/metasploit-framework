@@ -9,9 +9,13 @@ import os
 import ssl
 
 # extra modules
-import gmpy2
-from cryptography import x509
-from cryptography.hazmat.backends import default_backend
+dependencies_missing = False
+try:
+    import gmpy2
+    from cryptography import x509
+    from cryptography.hazmat.backends import default_backend
+except ImportError:
+    dependencies_missing = True
 
 from metasploit import module
 
@@ -52,16 +56,20 @@ metadata = {
         {'type': 'cve', 'ref': '2012-5081'}, # Oracle Java
         {'type': 'url', 'ref': 'https://robotattack.org'},
         {'type': 'url', 'ref': 'https://eprint.iacr.org/2017/1189'},
-        {'type': 'url', 'ref': 'https://github.com/robotattackorg/robot-detect'}, # Original PoC
-        {'type': 'aka', 'ref': 'ROBOT'},
-        {'type': 'aka', 'ref': 'Adaptive chosen-ciphertext attack'}
+        {'type': 'url', 'ref': 'https://github.com/robotattackorg/robot-detect'} # Original PoC
      ],
-    'type': 'scanner.single',
+    'type': 'single_scanner',
     'options': {
         'rhost': {'type': 'address', 'description': 'The target address', 'required': True, 'default': None},
         'rport': {'type': 'port', 'description': 'The target port', 'required': True, 'default': 443},
         'cipher_group': {'type': 'enum', 'description': 'Use TLS_RSA ciphers with AES and 3DES ciphers, or only TLS_RSA_WITH_AES_128_CBC_SHA or TLS-RSA-WITH-AES-128-GCM-SHA256', 'required': True, 'default': 'all', 'values': ['all', 'cbc', 'gcm']},
         'timeout': {'type': 'int', 'description': 'The delay to wait for TLS responses', 'required': True, 'default': 5}
+     },
+     'notes': {
+         'AKA': [
+            'ROBOT',
+            'Adaptive chosen-ciphertext attack'
+         ]
      }}
 
 cipher_handshakes = {
@@ -151,6 +159,10 @@ def oracle(target, pms, cke_2nd_prefix, cipher_handshake=ch_def, messageflow=Fal
 
 
 def run(args):
+    if dependencies_missing:
+        module.log("Module dependencies (gmpy2 and cryptography python libraries) missing, cannot continue", level='error')
+        return
+
     target = (args['rhost'], int(args['rport']))
     timeout = float(args['timeout'])
     cipher_handshake = cipher_handshakes[args['cipher_group']]
